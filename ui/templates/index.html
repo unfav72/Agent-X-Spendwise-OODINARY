@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spendwise AI — Autonomous Financial Auditor & Anomaly Hunter</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body class="dark-theme">
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class=""></i>
+                </div>
+                <div class="brand-text">
+                    <h2>SPENDWISE <span>AI</span></h2>
+                    <p>Financial Auditor</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#overview" class="nav-item active" data-page="overview">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#investigation" class="nav-item" data-page="investigation">
+                    <i class="fa-solid fa-brain-circuit"></i>
+                    <span>AI Investigation</span>
+                    <span class="badge pulse-badge">Agent</span>
+                </a>
+                <a href="#recovery" class="nav-item" data-page="recovery">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Recovery Center</span>
+                    <span class="badge recovery-badge" id="nav-recovery-count">1</span>
+                </a>
+                <a href="#anomalies" class="nav-item" data-page="anomalies">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Anomaly Detection</span>
+                    <span class="badge alert-badge" id="nav-anomaly-count">3</span>
+                </a>
+                <a href="#budget" class="nav-item" data-page="budget">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Budget Simulator</span>
+                </a>
+                <a href="#transactions" class="nav-item" data-page="transactions">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="#reports" class="nav-item" data-page="reports">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Audit Reports</span>
+                </a>
+                <a href="#upload" class="nav-item" data-page="upload">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload Statement</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <span class="status-dot"></span>
+                    <div class="status-info">
+                        <small>Engine Status</small>
+                        <strong>Autonomous v2.0</strong>
+                    </div>
+                </div>
+                <button class="btn-demo-reset" id="btn-reset-demo"
+                    title="Reset to standard 168-transaction demo dataset">
+                    <i class="fa-solid fa-rotate-right"></i> Reset Demo Data
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="topbar">
+                <div class="topbar-title">
+                    <h1 id="page-title">Overview Dashboard</h1>
+                    <p id="page-subtitle">Deterministic financial telemetry & anomaly surveillance</p>
+                </div>
+                <div class="topbar-actions">
+                    <div class="demo-tag">
+                        <i class="fa-solid fa-vial"></i> Synthetic Audit Dataset Active
+                    </div>
+                    <button class="btn btn-primary" onclick="navigateTo('investigation')">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i> Launch Audit
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+
+                <!-- VIEW 1: OVERVIEW -->
+                <section id="view-overview" class="page-view active">
+                    <!-- Metric Cards -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-label">Total Audited Income</span>
+                                <div class="metric-icon income-icon"><i class="fa-solid fa-arrow-down-left"></i></div>
+                            </div>
+                            <h2 class="metric-value income" id="m-income">₹0.00</h2>
+                            <span class="metric-caption"><i class="fa-solid fa-circle-check"></i> Verified bank
+                                credits</span>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-label">Total Audited Outlays</span>
+                                <div class="metric-icon expense-icon"><i class="fa-solid fa-arrow-up-right"></i></div>
+                            </div>
+                            <h2 class="metric-value expense" id="m-expense">₹0.00</h2>
+                            <span class="metric-caption"><i class="fa-solid fa-receipt"></i> Debits within ledger
+                                scope</span>
+                        </div>
+                        <div class="metric-card highlight-cyan">
+                            <div class="metric-header">
+                                <span class="metric-label">Net Balance (Ledger Scope)</span>
+                                <div class="metric-icon balance-icon"><i class="fa-solid fa-wallet"></i></div>
+                            </div>
+                            <h2 class="metric-value balance" id="m-balance">₹0.00</h2>
+                            <span class="metric-caption">Income minus debited funds</span>
+                        </div>
+                        <div class="metric-card highlight-gold">
+                            <div class="metric-header">
+                                <span class="metric-label">Confirmed Recoveries</span>
+                                <div class="metric-icon recovery-icon"><i class="fa-solid fa-shield-check"></i></div>
+                            </div>
+                            <h2 class="metric-value recovery" id="m-recovery">₹0.00</h2>
+                            <span class="metric-caption" id="m-unresolved-label">₹0.00 unresolved claims</span>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="charts-grid">
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-chart-line"></i> Monthly Spending Trajectory</h3>
+                                <span class="badge outline-badge">Month-over-Month</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="monthlyTrendChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-chart-pie"></i> Category Distribution</h3>
+                                <span class="badge outline-badge">12 Categories</span>
+                            </div>
+                            <div class="chart-container doughnut-container">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Alerts Banner -->
+                    <div class="card alerts-banner-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-bell"></i> Critical Audit Flags</h3>
+                            <button class="btn btn-sm btn-ghost" onclick="navigateTo('anomalies')">View All Flags
+                                →</button>
+                        </div>
+                        <div class="alerts-list" id="overview-alerts-list">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: AI INVESTIGATION (GENUINE AGENTIC TRACE) -->
+                <section id="view-investigation" class="page-view">
+                    <div class="agent-workspace">
+                        <!-- Left: Interactive Chat & Controls -->
+                        <div class="chat-column">
+                            <div class="card chat-card">
+                                <div class="chat-header">
+                                    <div class="chat-agent-info">
+                                        <div class="agent-avatar">
+                                            <i class="fa-solid fa-robot"></i>
+                                        </div>
+                                        <div>
+                                            <h3>Spendwise Autonomous Agent</h3>
+                                            <p>Dynamic Multi-Step Tool Execution Engine</p>
+                                        </div>
+                                    </div>
+                                    <div class="lang-selector">
+                                        <i class="fa-solid fa-language"></i>
+                                        <select id="investigation-language">
+                                            <option value="English">English</option>
+                                            <option value="Tamil">தமிழ் (Tamil)</option>
+                                            <option value="Hindi">हिन्दी (Hindi)</option>
+                                            <option value="Telugu">తెలుగు (Telugu)</option>
+                                            <option value="Malayalam">മലയാളം (Malayalam)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Sample Query Pills -->
+                                <div class="query-pills-bar">
+                                    <span>Try asking:</span>
+                                    <button class="pill"
+                                        onclick="setQuery('Why did my spending increase this month?')">Why spending
+                                        increased?</button>
+                                    <button class="pill"
+                                        onclick="setQuery('Did I pay the same merchant twice?')">Duplicate
+                                        charges?</button>
+                                    <button class="pill"
+                                        onclick="setQuery('Did I receive the refund for my previous payment?')">Refund
+                                        status?</button>
+                                    <button class="pill"
+                                        onclick="setQuery('What happens if I reduce food delivery by 15%?')">Budget
+                                        simulation</button>
+                                    <button class="pill"
+                                        onclick="setQuery('What are my recurring subscriptions?')">Recurring
+                                        charges</button>
+                                </div>
+
+                                <!-- Chat Messages Container -->
+                                <div class="chat-messages" id="chat-messages">
+                                    <div class="msg bot-msg">
+                                        <div class="msg-avatar"><i class="fa-solid fa-shield-halved"></i></div>
+                                        <div class="msg-bubble">
+                                            <p>Hello! I am <strong>Spendwise AI</strong>, your autonomous financial
+                                                auditor. You can ask me to investigate spending anomalies, audit
+                                                recurring subscriptions, trace pending refunds, or simulate budget cuts.
+                                            </p>
+                                            <p><small class="text-cyan">Select any query above or type in any language
+                                                    (English, தமிழ், हिन्दी, తెలుగు, മലയാളം).</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Input Bar -->
+                                <div class="chat-input-wrapper">
+                                    <button class="btn-voice" id="btn-voice-input" title="Microphone Voice Input">
+                                        <i class="fa-solid fa-microphone"></i>
+                                    </button>
+                                    <input type="text" id="chat-query-input"
+                                        placeholder="Ask a financial investigation question..." autocomplete="off">
+                                    <button class="btn btn-primary" id="btn-send-investigation">
+                                        <i class="fa-solid fa-paper-plane"></i> Run Audit
+                                    </button>
+                                </div>
+                                <div class="voice-status" id="voice-indicator" style="display: none;">
+                                    <span class="listening-wave"></span> Listening to your speech...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Live Agent Activity Trace Viewer -->
+                        <div class="trace-column">
+                            <div class="card trace-card">
+                                <div class="card-header">
+                                    <h3><i class="fa-solid fa-terminal"></i> Live Agent Activity Trace</h3>
+                                    <span class="badge outline-badge" id="trace-step-count">0 Steps</span>
+                                </div>
+                                <div class="trace-body" id="trace-container">
+                                    <div class="trace-empty-state">
+                                        <i class="fa-solid fa-satellite-dish"></i>
+                                        <p>No active investigation running.</p>
+                                        <small>When you submit a query, the agent will dynamically select and execute
+                                            real tools against the ledger. Each Thought, Action, and Observation will
+                                            stream here.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: RECOVERY CENTER (CORE NOVELTY) -->
+                <section id="view-recovery" class="page-view">
+                    <div class="recovery-banner">
+                        <div class="banner-text">
+                            <h2><i class="fa-solid fa-shield-halved"></i> Recovery Lifecycle & Verification Engine</h2>
+                            <p>Spendwise AI strictly separates <strong>Potential Claims</strong> from <strong>Verified
+                                    Recoveries</strong>. Only matched inbound credits received in your ledger count
+                                towards realized recovery.</p>
+                        </div>
+                        <div class="recovery-metrics-row">
+                            <div class="rec-metric">
+                                <span>Potential Recovery</span>
+                                <strong id="rec-total-potential">₹1,000.00</strong>
+                            </div>
+                            <div class="rec-metric confirmed">
+                                <span>Confirmed Recovery</span>
+                                <strong id="rec-total-confirmed">₹300.00</strong>
+                            </div>
+                            <div class="rec-metric unresolved">
+                                <span>Unresolved Balance</span>
+                                <strong id="rec-total-unresolved">₹700.00</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cases List -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-clock-rotate-left"></i> Tracked Refund & Dispute Cases</h3>
+                            <span class="badge outline-badge">Evidence-Linked</span>
+                        </div>
+                        <div class="recovery-cases-container" id="recovery-cases-list">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: ANOMALIES & DUPLICATES -->
+                <section id="view-anomalies" class="page-view">
+                    <div class="anomalies-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-bolt"></i> Statistical Outliers & Spending Spikes</h3>
+                                <span class="badge alert-badge" id="anomaly-badge-count">0 Detected</span>
+                            </div>
+                            <div class="anomalies-list-container" id="anomalies-full-list">
+                                <!-- Injected -->
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-clone"></i> Duplicate Charge Candidates</h3>
+                                <span class="badge gold-badge" id="duplicate-badge-count">0 Found</span>
+                            </div>
+                            <div class="duplicates-list-container" id="duplicates-full-list">
+                                <!-- Injected -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: BUDGET SIMULATOR -->
+                <section id="view-budget" class="page-view">
+                    <div class="budget-layout">
+                        <!-- Sliders column -->
+                        <div class="card budget-controls-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-sliders"></i> Spend Trimming Parameters</h3>
+                                <button class="btn btn-sm btn-ghost" onclick="resetBudgetSliders()">Reset</button>
+                            </div>
+                            <div class="slider-group">
+                                <div class="slider-header">
+                                    <label>Food Delivery Reduction</label>
+                                    <span class="slider-val" id="val-food-delivery">15%</span>
+                                </div>
+                                <input type="range" min="0" max="60" step="5" value="15" id="slide-food-delivery"
+                                    oninput="updateBudgetSimulation()">
+                            </div>
+                            <div class="slider-group">
+                                <div class="slider-header">
+                                    <label>Shopping Reduction</label>
+                                    <span class="slider-val" id="val-shopping">20%</span>
+                                </div>
+                                <input type="range" min="0" max="60" step="5" value="20" id="slide-shopping"
+                                    oninput="updateBudgetSimulation()">
+                            </div>
+                            <div class="slider-group">
+                                <div class="slider-header">
+                                    <label>Entertainment Reduction</label>
+                                    <span class="slider-val" id="val-entertainment">10%</span>
+                                </div>
+                                <input type="range" min="0" max="60" step="5" value="10" id="slide-entertainment"
+                                    oninput="updateBudgetSimulation()">
+                            </div>
+                            <div class="slider-group">
+                                <div class="slider-header">
+                                    <label>Transport Optimization</label>
+                                    <span class="slider-val" id="val-transport">10%</span>
+                                </div>
+                                <input type="range" min="0" max="50" step="5" value="10" id="slide-transport"
+                                    oninput="updateBudgetSimulation()">
+                            </div>
+                            <div class="slider-group">
+                                <div class="slider-header">
+                                    <label>Fuel Optimization</label>
+                                    <span class="slider-val" id="val-fuel">5%</span>
+                                </div>
+                                <input type="range" min="0" max="40" step="5" value="5" id="slide-fuel"
+                                    oninput="updateBudgetSimulation()">
+                            </div>
+                        </div>
+
+                        <!-- Results Projection column -->
+                        <div class="card budget-results-card">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-calculator"></i> Deterministic Projected Savings</h3>
+                                <span class="badge cyan-badge">Model Output</span>
+                            </div>
+                            <div class="budget-kpis-grid">
+                                <div class="budget-kpi">
+                                    <span>Current Monthly Outlay</span>
+                                    <h3 id="b-current-monthly">₹0.00</h3>
+                                </div>
+                                <div class="budget-kpi">
+                                    <span>Projected Monthly Outlay</span>
+                                    <h3 id="b-projected-monthly">₹0.00</h3>
+                                </div>
+                                <div class="budget-kpi highlight-saving">
+                                    <span>Monthly Projected Savings</span>
+                                    <h3 id="b-monthly-saving">₹0.00</h3>
+                                </div>
+                                <div class="budget-kpi highlight-annual">
+                                    <span>Annualized Hypothetical Savings</span>
+                                    <h3 id="b-annual-saving">₹0.00</h3>
+                                </div>
+                            </div>
+                            <div class="accounting-notice">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <strong>Strict Accounting Rule:</strong> Hypothetical projected savings do not
+                                constitute realized cash flow and explicitly exclude pending unverified refunds.
+                            </div>
+                            <div class="budget-breakdown-table-wrapper">
+                                <table class="custom-table" id="budget-breakdown-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Current /mo</th>
+                                            <th>Proposed /mo</th>
+                                            <th>Cut %</th>
+                                            <th>Expected Monthly Saving</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="budget-breakdown-tbody">
+                                        <!-- Injected -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 6: TRANSACTIONS -->
+                <section id="view-transactions" class="page-view">
+                    <div class="card">
+                        <div class="card-header filter-header">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="tx-search-input"
+                                    placeholder="Search merchant, description, or reference ID..."
+                                    onkeyup="filterTransactions()">
+                            </div>
+                            <div class="filter-controls">
+                                <select id="tx-category-filter" onchange="filterTransactions()">
+                                    <option value="All">All Categories</option>
+                                    <option value="Food delivery">Food delivery</option>
+                                    <option value="Food and groceries">Food and groceries</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Fuel">Fuel</option>
+                                    <option value="Bills and utilities">Bills and utilities</option>
+                                    <option value="Subscriptions">Subscriptions</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Income">Income</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <select id="tx-type-filter" onchange="filterTransactions()">
+                                    <option value="all">All Movements</option>
+                                    <option value="debit">Debits Only</option>
+                                    <option value="credit">Credits Only</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="custom-table" id="transactions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Merchant</th>
+                                        <th>Description</th>
+                                        <th>Category</th>
+                                        <th>Reference</th>
+                                        <th style="text-align: right;">Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-tbody">
+                                    <!-- Injected -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 7: AUDIT REPORTS -->
+                <section id="view-reports" class="page-view">
+                    <div class="card report-card">
+                        <div class="card-header">
+                            <div>
+                                <h2><i class="fa-solid fa-file-invoice-dollar"></i> Spendwise Financial Audit Dossier
+                                </h2>
+                                <p>Compile complete verified evidence into a downloadable, publication-grade PDF audit
+                                    report.</p>
+                            </div>
+                            <a href="/api/report/download" target="_blank" class="btn btn-primary">
+                                <i class="fa-solid fa-download"></i> Download Audit PDF
+                            </a>
+                        </div>
+                        <div class="report-preview-box">
+                            <div class="pdf-preview-header">
+                                <h3>REPORT SUMMARY PREVIEW</h3>
+                                <span class="badge cyan-badge">ReportLab Engine</span>
+                            </div>
+                            <div class="pdf-preview-content" id="report-preview-text">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 8: STATEMENT UPLOAD -->
+                <section id="view-upload" class="page-view">
+                    <div class="card upload-card">
+                        <div class="card-header">
+                            <div>
+                                <h2><i class="fa-solid fa-cloud-arrow-up"></i> Multi-Format Statement Ingestion</h2>
+                                <p>Upload CSV, Excel (.xlsx, .xls), or bank statement PDFs. Drag and drop supported.</p>
+                            </div>
+                        </div>
+                        <div class="drop-zone" id="drop-zone">
+                            <i class="fa-solid fa-file-arrow-up upload-icon"></i>
+                            <h3>Drag and drop your financial statement here</h3>
+                            <p>Supported: <code>.csv</code>, <code>.xlsx</code>, <code>.xls</code>, <code>.pdf</code>
+                            </p>
+                            <input type="file" id="file-input" style="display: none;" accept=".csv,.xlsx,.xls,.pdf">
+                            <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()">
+                                Browse Files
+                            </button>
+                        </div>
+                        <div id="upload-result-container" style="display: none; margin-top: 20px;">
+                            <!-- Injected after upload -->
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Category Edit Modal -->
+    <div class="modal" id="category-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Recategorize Transaction</h3>
+                <button class="close-btn" onclick="closeCategoryModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-tx-desc"></p>
+                <input type="hidden" id="modal-tx-id">
+                <label>Select Category:</label>
+                <select id="modal-new-category">
+                    <option value="Food delivery">Food delivery</option>
+                    <option value="Food and groceries">Food and groceries</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Fuel">Fuel</option>
+                    <option value="Bills and utilities">Bills and utilities</option>
+                    <option value="Subscriptions">Subscriptions</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Education">Education</option>
+                    <option value="Income">Income</option>
+                    <option value="Other">Other</option>
+                </select>
+                <small class="text-cyan">This correction will be remembered for future categorizations of this
+                    merchant.</small>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeCategoryModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCategoryModal()">Save Correction</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
