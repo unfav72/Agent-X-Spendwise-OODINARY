@@ -42,12 +42,36 @@ def main():
     ap.add_argument("--ui", "--serve", dest="serve_ui", action="store_true", help="Start the Spendwise AI web dashboard server")
     args = ap.parse_args()
 
-    if args.serve_ui or (args.query is None and not args.json):
+    # Check if query was piped via stdin
+    query_text = args.query
+    if not query_text and not sys.stdin.isatty():
+        try:
+            stdin_data = sys.stdin.read().strip()
+            if stdin_data:
+                query_text = stdin_data
+        except Exception:
+            pass
+
+    if args.serve_ui or (query_text is None and not args.json):
         import subprocess
         port = int(os.environ.get("PORT", 8501))
         print(f"Launching Spendwise AI Streamlit Dashboard on port {port}...", file=sys.stderr)
         subprocess.run([sys.executable, "-m", "streamlit", "run", "streamlit_app.py", "--server.port", str(port)])
         return
+
+    # If query is JSON formatted (e.g. {"query": "..."}), unpack it
+    if query_text:
+        trimmed = query_text.strip()
+        if trimmed.startswith("{") and trimmed.endswith("}"):
+            try:
+                payload = json.loads(trimmed)
+                if isinstance(payload, dict) and "query" in payload:
+                    query_text = str(payload["query"])
+            except Exception:
+                pass
+
+    if not query_text:
+        query_text = "Find unusual payments this month"
 
     # Determine if dry run mode should be active
     is_dry = args.dry_run or bool(os.environ.get("AGENTX_DRY_RUN"))
@@ -56,7 +80,7 @@ def main():
         is_dry = True
 
     try:
-        answer, trace = run_agent(args.query, dry_run=is_dry, verbose=not args.json)
+        answer, trace = run_agent(query_text, dry_run=is_dry, verbose=not args.json)
     except Exception as e:
         answer, trace = f"Agent error: {type(e).__name__}: {e}", []
         print(f"Error during agent run: {e}", file=sys.stderr)
@@ -69,7 +93,7 @@ def main():
         print(f"\n==========================================")
         print(f"SPENDWISE AI AUDIT REPORT")
         print(f"==========================================")
-        print(f"QUESTION: {args.query}")
+        print(f"QUESTION: {query_text}")
         print(f"\nAUDIT FINDINGS:\n{answer}\n")
         print(f"Tools Executed: {len(trace)}")
         for i, step in enumerate(trace, 1):
